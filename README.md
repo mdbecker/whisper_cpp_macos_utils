@@ -4,7 +4,7 @@
 
 The `whisper_cpp_macos_utils` repository provides shell scripts to simplify audio transcription workflows on macOS. These utilities integrate OpenAI's `whisper.cpp` with macOS tools like QuickTime Player and BlackHole-2ch to automate tasks such as retrieving QuickTime recordings, converting audio formats, and generating transcriptions.
 
-This project is ideal for users who frequently record audio (e.g., meetings, lectures, or system audio) and need an efficient way to process these recordings into text.
+This project is ideal for users who frequently record audio (e.g., meetings, lectures, or system audio) and need an efficient, streamlined way to process these recordings into text.
 
 ---
 
@@ -35,25 +35,41 @@ This project is ideal for users who frequently record audio (e.g., meetings, lec
 #### **`build_and_test_models.sh`**
 Builds the `whisper.cpp` binary with Metal support on macOS and downloads Whisper models for transcription.
 
-**Usage:**
+**Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support.
+
+#### Prerequisites
+Before running `build_and_test_models.sh`, ensure the following prerequisites are met:
+
+1. **Install Required Tools:**
+   - BlackHole-2ch for audio recording:
+     ```bash
+     brew install --cask blackhole-2ch
+     ```
+   - FFmpeg for audio conversion:
+     ```bash
+     brew install ffmpeg
+     ```
+   - Xcode Command Line Tools:
+     ```bash
+     xcode-select --install
+     ```
+
+2. **Prepare Whisper.cpp:**
+   - Clone the `whisper.cpp` repository:
+     ```bash
+     git clone https://github.com/ggerganov/whisper.cpp.git
+     cd whisper.cpp
+     ```
+
+#### Usage
+Run the script from within the `whisper.cpp` directory:
 ```bash
-bash build_and_test_models.sh -m large-v2,large-v3-turbo,large-v3-turbo-q5_0 -t 8
+bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v3-turbo-q5_0
 ```
 
 - **Options:**
   - `-m`: Comma-separated list of Whisper models to download and test.
   - `-t`: Number of threads for building (default: auto-detect).
-
-**Example:**
-1. Clone and navigate to the `whisper.cpp` repository:
-   ```bash
-   git clone https://github.com/ggerganov/whisper.cpp.git
-   cd whisper.cpp
-   ```
-2. Run the script to build and test models:
-   ```bash
-   bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v3-turbo
-   ```
 
 ---
 
@@ -91,7 +107,7 @@ Transcribes `.wav` files into `.txt` using a specified Whisper model. Processes 
 
 **Usage:**
 ```bash
-bash wav_to_txt_p.sh -m large-v3-turbo-q5_0 -p 4
+bash wav_to_txt_p.sh -m large-v3-turbo-q5_0
 ```
 
 - **Options:**
@@ -113,51 +129,6 @@ bash chain_workflow.sh
 
 ---
 
-### Setup Instructions
-
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/yourusername/whisper_cpp_macos_utils.git
-   cd whisper_cpp_macos_utils
-   ```
-
-2. **Install Required Tools:**
-   - BlackHole-2ch for audio recording:
-     ```bash
-     brew install --cask blackhole-2ch
-     ```
-   - FFmpeg for audio conversion:
-     ```bash
-     brew install ffmpeg
-     ```
-
-3. **Prepare Whisper.cpp:**
-   - Clone and navigate to the `whisper.cpp` repository:
-     ```bash
-     git clone https://github.com/ggerganov/whisper.cpp.git
-     cd whisper.cpp
-     ```
-   - Build and test Whisper models:
-     ```bash
-     bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v3-turbo
-     ```
-
-4. **Run Scripts in Sequence:**
-   - Fix QuickTime autosave files:
-     ```bash
-     bash quicktime_fix.sh
-     ```
-   - Convert `.m4a` to `.wav`:
-     ```bash
-     bash m4a_to_wav.sh
-     ```
-   - Transcribe `.wav` files to `.txt`:
-     ```bash
-     bash wav_to_txt_p.sh
-     ```
-
----
-
 ### Example Workflow
 
 1. Record system audio using QuickTime and BlackHole-2ch.
@@ -171,7 +142,7 @@ bash chain_workflow.sh
    ```
 4. Transcribe `.wav` files into text:
    ```bash
-   bash wav_to_txt_p.sh -m large-v3-turbo
+   bash wav_to_txt_p.sh
    ```
 
 For full automation:
