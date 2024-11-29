@@ -38,6 +38,7 @@ Before using the utilities, ensure the following are installed and configured:
 3. **Prepare Whisper.cpp:**
    - Clone the `whisper.cpp` repository:
      ```bash
+     cd ~/git
      git clone https://github.com/ggerganov/whisper.cpp.git
      cd whisper.cpp
      ```
@@ -68,6 +69,7 @@ The typical workflow involves recording audio, processing the files, and generat
 
    **Usage:**
    ```bash
+   cd ~/git/whisper.cpp
    bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v3-turbo-q5_0
    ```
 
@@ -75,7 +77,7 @@ The typical workflow involves recording audio, processing the files, and generat
      - `-m`: Comma-separated list of Whisper models to download and test.
      - `-t`: Number of threads for building (default: auto-detect).
 
-   **Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support.
+   **Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support. If you're running an older version of macOS, you'll need to manually build whisper with CPU support.
 
 2. **`quicktime_fix.sh`**
    - Retrieves and renames QuickTime autosave files with timestamps, moves them to a specified directory, and deletes the original autosave directories.
