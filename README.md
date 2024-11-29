@@ -10,6 +10,8 @@ This project is ideal for users who frequently record audio (e.g., meetings, lec
 
 ### Prerequisites
 
+*Note: This guide assumes that **[Homebrew](https://brew.sh/)** is already installed and that you are familiar with using the **[terminal](https://iterm2.com/)**.*
+
 Before using the utilities, ensure the following are installed and configured:
 
 1. **Required Tools:**
