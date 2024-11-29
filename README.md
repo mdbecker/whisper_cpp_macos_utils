@@ -17,7 +17,7 @@ This project is ideal for users who frequently record audio (e.g., meetings, lec
      ```
    - Configure macOS audio settings to route output to BlackHole and input from a microphone or BlackHole itself.
    - Open QuickTime Player, start a new audio recording, and set input to BlackHole.
-   - **For detailed instructions on configuring BlackHole-2ch with QuickTime Player, see [this guide](ADD_LINK_HERE).**
+   - **For detailed instructions on configuring BlackHole-2ch with QuickTime Player, see [this guide](https://andreyazimov.medium.com/how-to-record-desktop-audio-on-your-mac-in-2023-8aab7c29bffd) or [this video](https://youtu.be/KjL_sJS9Rko?si=MfjBMnO-BvOr487F&t=227). See the BlackHole-2ch [wiki](https://github.com/ExistentialAudio/BlackHole/wiki) for more details or support.**
 
 2. **Run the Scripts:**
    - `quicktime_fix.sh`: Retrieve and rename QuickTime autosave files.
