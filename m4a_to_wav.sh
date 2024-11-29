@@ -1,35 +1,82 @@
 #!/bin/bash
 
-# Directory containing m4a files
-dir_one="/Users/mbecker/Documents/new_recordings"
+# Default directories
+DEFAULT_INPUT_DIR="$HOME/Documents/new_recordings"
+DEFAULT_OUTPUT_DIR="$HOME/git/whisper.cpp"
+DEFAULT_PROCESSED_DIR="$HOME/Documents/old_recordings"
 
-# Directory containing wav files
-dir_two="/Users/mbecker/git/whisper.cpp"
+# Function to display help message
+usage() {
+    echo "Usage: $0 [-i <input_dir>] [-o <output_dir>] [-p <processed_dir>]"
+    echo ""
+    echo "Options:"
+    echo "  -i <input_dir>      Directory containing .m4a files to process (default: $DEFAULT_INPUT_DIR)"
+    echo "  -o <output_dir>     Directory to save .wav files (default: $DEFAULT_OUTPUT_DIR)"
+    echo "  -p <processed_dir>  Directory to move processed .m4a files (default: $DEFAULT_PROCESSED_DIR)"
+    echo "  -h                  Display this help message"
+    exit 1
+}
 
-# Directory to move processed m4a files
-dir_old="/Users/mbecker/Documents/old_recordings"
+# Parse command-line arguments
+input_dir="$DEFAULT_INPUT_DIR"
+output_dir="$DEFAULT_OUTPUT_DIR"
+processed_dir="$DEFAULT_PROCESSED_DIR"
 
-# Loop through all m4a files in dir_one
-for file in "$dir_one"/*.m4a; do
-    # Get the base name of the file without extension
-    base_name="${file%.*}"
+while getopts ":i:o:p:h" opt; do
+    case $opt in
+        i) input_dir="$OPTARG" ;;
+        o) output_dir="$OPTARG" ;;
+        p) processed_dir="$OPTARG" ;;
+        h) usage ;;
+        *) usage ;;
+    esac
+done
 
-    # Construct the name of the corresponding wav file in dir_two
-    wav_file="$dir_two/$(basename "$base_name").wav"
+# Ensure directories exist
+if [ ! -d "$input_dir" ]; then
+    echo "Error: Input directory '$input_dir' does not exist."
+    exit 1
+fi
 
-    # Construct the name of the corresponding wav.txt file in dir_two
-    wav_txt_file="$dir_two/$(basename "$base_name").wav.txt"
+if [ ! -d "$output_dir" ]; then
+    echo "Error: Output directory '$output_dir' does not exist. Creating it..."
+    mkdir -p "$output_dir"
+fi
 
-    # Check if the wav file or wav.txt file already exists in dir_two
+if [ ! -d "$processed_dir" ]; then
+    echo "Error: Processed directory '$processed_dir' does not exist. Creating it..."
+    mkdir -p "$processed_dir"
+fi
+
+# Process .m4a files
+for m4a_file in "$input_dir"/*.m4a; do
+    # Skip if no .m4a files are found
+    [ -e "$m4a_file" ] || { echo "No .m4a files found in '$input_dir'."; exit 0; }
+
+    # Get base file name without extension
+    base_name="${m4a_file%.*}"
+
+    # Construct output .wav file path
+    wav_file="$output_dir/$(basename "$base_name").wav"
+
+    # Construct transcription file path
+    wav_txt_file="$output_dir/$(basename "$base_name").wav.txt"
+
+    # Check if output .wav or transcription file already exists
     if [ ! -f "$wav_file" ] && [ ! -f "$wav_txt_file" ]; then
-        # If neither file exists, convert the m4a file to wav and save it in dir_two
-        echo "$file"
-        ffmpeg -i "$file" -ar 16000 -ac 1 -c:a pcm_s16le "$wav_file"
+        echo "Processing: $m4a_file"
 
-        # Set the timestamp of the wav file to be the same as the m4a file
-        touch -r "$file" "$wav_file"
+        # Convert .m4a to .wav
+        ffmpeg -i "$m4a_file" -ar 16000 -ac 1 -c:a pcm_s16le "$wav_file"
 
-        # Move the processed m4a file to the old_recordings directory
-        mv "$file" "$dir_old/$(basename "$file")"
+        # Preserve original timestamp on .wav file
+        touch -r "$m4a_file" "$wav_file"
+
+        # Move processed .m4a file to the processed directory
+        mv "$m4a_file" "$processed_dir/$(basename "$m4a_file")"
+    else
+        echo "Skipping: $m4a_file (output or transcription already exists)"
     fi
 done
+
+echo "Processing completed."
