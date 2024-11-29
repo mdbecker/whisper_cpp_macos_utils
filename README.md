@@ -8,6 +8,21 @@ This project is ideal for users who frequently record audio (e.g., meetings, lec
 
 ---
 
+### Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Workflow Overview](#workflow-overview)
+- [Repository Contents](#repository-contents)
+  - [`build_and_test_models.sh`](#build_and_test_modelssh)
+  - [`quicktime_fix.sh`](#quicktime_fixsh)
+  - [`m4a_to_wav.sh`](#m4a_to_wavsh)
+  - [`wav_to_txt_p.sh`](#wav_to_txt_psh)
+  - [`chain_workflow.sh`](#chain_workflowsh)
+- [Notes](#notes)
+- [Example Workflow](#example-workflow)
+
+---
+
 ### Prerequisites
 
 *Note: This guide assumes that **[Homebrew](https://brew.sh/)** is already installed and that you are familiar with using the **[terminal](https://iterm2.com/)**.*
@@ -66,104 +81,109 @@ The typical workflow involves recording audio, processing the files, and generat
 
 ### Repository Contents
 
-#### **Script Summaries**
+#### Script Summaries
 
-1. **`build_and_test_models.sh`**
-   - Builds the `whisper.cpp` binary with Metal support for macOS.
-   - Downloads and tests Whisper models for transcription.
+##### `build_and_test_models.sh`
 
-   **Options:**
-   - `-m`: Comma-separated list of Whisper models to download and test.
-   - `-t`: Number of threads for building (default: auto-detect).
+- Builds the `whisper.cpp` binary with Metal support for macOS.
+- Downloads and tests Whisper models for transcription.
 
-   **Example:**
-   ```bash
-   cd ~/git/whisper.cpp
-   bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v2,large-v3-turbo,large-v3-turbo-q5_0 -t 8
-   ```
+**Options:**
+- `-m`: Comma-separated list of Whisper models to download and test.
+- `-t`: Number of threads for building (default: auto-detect).
 
-   **Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support. For older macOS versions, manually build Whisper with CPU support.
+**Example:**
+```bash
+cd ~/git/whisper.cpp
+bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v2,large-v3-turbo,large-v3-turbo-q5_0 -t 8
+```
 
-2. **`quicktime_fix.sh`**
-   - Retrieves and renames QuickTime autosave files with timestamps, moves them to a specified directory, and deletes the original autosave directories.
+**Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support. For older macOS versions, manually build Whisper with CPU support.
 
-   **Options:**
-   - `-s <source_dir>`: Source directory to search for autosave files (default: `~/Library/Containers/com.apple.QuickTimePlayerX/Data/Library/Autosave Information/`).
-   - `-d <destination_dir>`: Directory to save retrieved files (default: `~/Documents/new_recordings/`).
+##### `quicktime_fix.sh`
 
-   **Example with Defaults:**
-   ```bash
-   bash quicktime_fix.sh
-   ```
+- Retrieves and renames QuickTime autosave files with timestamps, moves them to a specified directory, and deletes the original autosave directories.
 
-   **Example with Custom Directories:**
-   ```bash
-   bash quicktime_fix.sh -s ~/custom_autosave_dir -d ~/custom_recordings_dir
-   ```
+**Options:**
+- `-s <source_dir>`: Source directory to search for autosave files (default: `~/Library/Containers/com.apple.QuickTimePlayerX/Data/Library/Autosave Information/`).
+- `-d <destination_dir>`: Directory to save retrieved files (default: `~/Documents/new_recordings/`).
 
-3. **`m4a_to_wav.sh`**
-   - Converts `.m4a` files to `.wav` format and moves processed files to a separate directory.
-   - Accepts customizable directories via arguments.
+**Example with Defaults:**
+```bash
+bash quicktime_fix.sh
+```
 
-   **Options:**
-   - `-i <input_dir>`: Directory containing `.m4a` files to process (default: `~/Documents/new_recordings/`).
-   - `-o <output_dir>`: Directory to save `.wav` files (default: `~/git/whisper.cpp/`).
-   - `-p <processed_dir>`: Directory to move processed `.m4a` files (default: `~/Documents/old_recordings/`).
+**Example with Custom Directories:**
+```bash
+bash quicktime_fix.sh -s ~/custom_autosave_dir -d ~/custom_recordings_dir
+```
 
-   **Example with Defaults:**
-   ```bash
-   bash m4a_to_wav.sh
-   ```
+##### `m4a_to_wav.sh`
 
-   **Example with Custom Directories:**
-   ```bash
-   bash m4a_to_wav.sh -i ~/custom_input -o ~/custom_output -p ~/processed_files
-   ```
+- Converts `.m4a` files to `.wav` format and moves processed files to a separate directory.
+- Accepts customizable directories via arguments.
 
-4. **`wav_to_txt_p.sh`**
-   - Transcribes `.wav` files into `.txt` using a specified Whisper model.
-   - Supports parallel processing and configurable directories.
+**Options:**
+- `-i <input_dir>`: Directory containing `.m4a` files to process (default: `~/Documents/new_recordings/`).
+- `-o <output_dir>`: Directory to save `.wav` files (default: `~/git/whisper.cpp/`).
+- `-p <processed_dir>`: Directory to move processed `.m4a` files (default: `~/Documents/old_recordings/`).
 
-   **Options:**
-   - `-m <model>`: Specify the Whisper model to use (default: `large-v3-turbo-q5_0`).
-   - `-p <parallel_jobs>`: Number of parallel jobs (default: `7`).
-   - `-i <input_dir>`: Directory containing `.wav` files to process (default: `~/git/whisper.cpp/`).
-   - `-o <output_dir>`: Directory to save `.txt` transcriptions (default: `~/git/whisper.cpp/`).
+**Example with Defaults:**
+```bash
+bash m4a_to_wav.sh
+```
 
-   **Example with Defaults:**
-   ```bash
-   bash wav_to_txt_p.sh
-   ```
+**Example with Custom Directories:**
+```bash
+bash m4a_to_wav.sh -i ~/custom_input -o ~/custom_output -p ~/processed_files
+```
 
-   **Example with Custom Options:**
-   ```bash
-   bash wav_to_txt_p.sh -m large-v2 -p 4 -i ~/custom_wav_dir -o ~/custom_txt_dir
-   ```
+##### `wav_to_txt_p.sh`
 
-5. **`chain_workflow.sh`**
-   - Automates the full workflow:
-     - Retrieves QuickTime autosave recordings.
-     - Converts `.m4a` files to `.wav`.
-     - Transcribes `.wav` files into `.txt`.
-   - Supports overriding options for the individual scripts to maintain consistency.
+- Transcribes `.wav` files into `.txt` using a specified Whisper model.
+- Supports parallel processing and configurable directories.
 
-   **Options:**
-   - `--qt-src <path>`: Source directory for QuickTime autosave files (default: `~/Library/Containers/com.apple.QuickTimePlayerX/Data/Library/Autosave Information/`).
-   - `--qt-dest <path>`: Destination directory for QuickTime recordings (default: `~/Documents/new_recordings/`).
-   - `--m4a-output <path>`: Directory to save `.wav` files and transcriptions (default: `~/git/whisper.cpp/`).
-   - `--processed-dir <path>`: Directory to move processed `.m4a` files (default: `~/Documents/old_recordings/`).
-   - `--whisper-model <model>`: Whisper model to use (default: `large-v3-turbo-q5_0`).
-   - `--parallel-jobs <num>`: Number of parallel jobs for transcription (default: `7`).
+**Options:**
+- `-m <model>`: Specify the Whisper model to use (default: `large-v3-turbo-q5_0`).
+- `-p <parallel_jobs>`: Number of parallel jobs (default: `7`).
+- `-i <input_dir>`: Directory containing `.wav` files to process (default: `~/git/whisper.cpp/`).
+- `-o <output_dir>`: Directory to save `.txt` transcriptions (default: `~/git/whisper.cpp/`).
 
-   **Example with Defaults:**
-   ```bash
-   bash chain_workflow.sh
-   ```
+**Example with Defaults:**
+```bash
+bash wav_to_txt_p.sh
+```
 
-   **Example with Custom Options:**
-   ```bash
-   bash chain_workflow.sh --qt-src ~/custom_autosave_dir --qt-dest ~/custom_new_recordings --m4a-output ~/custom_wav_dir --processed-dir ~/custom_old_recordings --whisper-model large-v2 --parallel-jobs 4
-   ```
+**Example with Custom Options:**
+```bash
+bash wav_to_txt_p.sh -m large-v2 -p 4 -i ~/custom_wav_dir -o ~/custom_txt_dir
+```
+
+##### `chain_workflow.sh`
+
+- Automates the full workflow:
+  - Retrieves QuickTime autosave recordings.
+  - Converts `.m4a` files to `.wav`.
+  - Transcribes `.wav` files into `.txt`.
+- Supports overriding options for the individual scripts to maintain consistency.
+
+**Options:**
+- `--qt-src <path>`: Source directory for QuickTime autosave files (default: `~/Library/Containers/com.apple.QuickTimePlayerX/Data/Library/Autosave Information/`).
+- `--qt-dest <path>`: Destination directory for QuickTime recordings (default: `~/Documents/new_recordings/`).
+- `--m4a-output <path>`: Directory to save `.wav` files and transcriptions (default: `~/git/whisper.cpp/`).
+- `--processed-dir <path>`: Directory to move processed `.m4a` files (default: `~/Documents/old_recordings/`).
+- `--whisper-model <model>`: Whisper model to use (default: `large-v3-turbo-q5_0`).
+- `--parallel-jobs <num>`: Number of parallel jobs for transcription (default: `7`).
+
+**Example with Defaults:**
+```bash
+bash chain_workflow.sh
+```
+
+**Example with Custom Options:**
+```bash
+bash chain_workflow.sh --qt-src ~/custom_autosave_dir --qt-dest ~/custom_new_recordings --m4a-output ~/custom_wav_dir --processed-dir ~/custom_old_recordings --whisper-model large-v2 --parallel-jobs 4
+```
 
 ---
 
