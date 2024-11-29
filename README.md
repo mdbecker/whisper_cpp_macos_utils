@@ -1,15 +1,8 @@
-## README for `whisper_cpp_macos_utils`
+# README for `whisper_cpp_macos_utils`
 
-### Purpose
+## Table of Contents
 
-The `whisper_cpp_macos_utils` repository provides shell scripts to simplify audio transcription workflows on macOS. These utilities integrate OpenAI's Whisper (via [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp)) with macOS tools like QuickTime Player and BlackHole-2ch to automate tasks such as retrieving QuickTime recordings, converting audio formats, and generating transcriptions.
-
-This project is ideal for users who frequently record audio (e.g., meetings, lectures, or system audio) and need an efficient, streamlined way to process these recordings into text.
-
----
-
-### Table of Contents
-
+- [Purpose](#purpose)
 - [Prerequisites](#prerequisites)
 - [Workflow Overview](#workflow-overview)
 - [Repository Contents](#repository-contents)
@@ -23,7 +16,15 @@ This project is ideal for users who frequently record audio (e.g., meetings, lec
 
 ---
 
-### Prerequisites
+## Purpose
+
+The `whisper_cpp_macos_utils` repository provides shell scripts to simplify audio transcription workflows on macOS. These utilities integrate OpenAI's Whisper (via [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp)) with macOS tools like QuickTime Player and BlackHole-2ch to automate tasks such as retrieving QuickTime recordings, converting audio formats, and generating transcriptions.
+
+This project is ideal for users who frequently record audio (e.g., meetings, lectures, or system audio) and need an efficient, streamlined way to process these recordings into text.
+
+---
+
+## Prerequisites
 
 *Note: This guide assumes that **[Homebrew](https://brew.sh/)** is already installed and that you are familiar with using the **[terminal](https://iterm2.com/)**.*
 
@@ -63,7 +64,7 @@ Before using the utilities, ensure the following are installed and configured:
 
 ---
 
-### Workflow Overview
+## Workflow Overview
 
 The typical workflow involves recording audio, processing the files, and generating transcriptions. These steps can be automated using the provided scripts:
 
@@ -72,18 +73,18 @@ The typical workflow involves recording audio, processing the files, and generat
 
 2. **Process and Transcribe Recordings:**
    - **Option 1:** Use the individual scripts:
-     - `quicktime_fix.sh`: Retrieve and rename QuickTime autosave files.
-     - `m4a_to_wav.sh`: Convert `.m4a` files to `.wav`.
-     - `wav_to_txt_p.sh`: Transcribe `.wav` files to `.txt`.
-   - **Option 2:** Use `chain_workflow.sh` to automate the full workflow with customizable options.
+     - [`quicktime_fix.sh`](#quicktime_fixsh): Retrieve and rename QuickTime autosave files.
+     - [`m4a_to_wav.sh`](#m4a_to_wavsh): Convert `.m4a` files to `.wav`.
+     - [`wav_to_txt_p.sh`](#wav_to_txt_psh): Transcribe `.wav` files to `.txt`.
+   - **Option 2:** Use [`chain_workflow.sh`](#chain_workflowsh) to automate the full workflow with customizable options.
 
 ---
 
-### Repository Contents
+## Repository Contents
 
-#### Script Summaries
+### Script Summaries
 
-##### `build_and_test_models.sh`
+#### `build_and_test_models.sh`
 
 - Builds the `whisper.cpp` binary with Metal support for macOS.
 - Downloads and tests Whisper models for transcription.
@@ -100,7 +101,7 @@ bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v2,large-v3-tu
 
 **Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support. For older macOS versions, manually build Whisper with CPU support.
 
-##### `quicktime_fix.sh`
+#### `quicktime_fix.sh`
 
 - Retrieves and renames QuickTime autosave files with timestamps, moves them to a specified directory, and deletes the original autosave directories.
 
@@ -118,7 +119,7 @@ bash quicktime_fix.sh
 bash quicktime_fix.sh -s ~/custom_autosave_dir -d ~/custom_recordings_dir
 ```
 
-##### `m4a_to_wav.sh`
+#### `m4a_to_wav.sh`
 
 - Converts `.m4a` files to `.wav` format and moves processed files to a separate directory.
 - Accepts customizable directories via arguments.
@@ -138,7 +139,7 @@ bash m4a_to_wav.sh
 bash m4a_to_wav.sh -i ~/custom_input -o ~/custom_output -p ~/processed_files
 ```
 
-##### `wav_to_txt_p.sh`
+#### `wav_to_txt_p.sh`
 
 - Transcribes `.wav` files into `.txt` using a specified Whisper model.
 - Supports parallel processing and configurable directories.
@@ -159,7 +160,7 @@ bash wav_to_txt_p.sh
 bash wav_to_txt_p.sh -m large-v2 -p 4 -i ~/custom_wav_dir -o ~/custom_txt_dir
 ```
 
-##### `chain_workflow.sh`
+#### `chain_workflow.sh`
 
 - Automates the full workflow:
   - Retrieves QuickTime autosave recordings.
@@ -187,14 +188,14 @@ bash chain_workflow.sh --qt-src ~/custom_autosave_dir --qt-dest ~/custom_new_rec
 
 ---
 
-### Notes
+## Notes
 
 - **Whisper Models:** Use an appropriate Whisper model (`large-v2`, `large-v3-turbo`, `large-v3-turbo-q5_0`, etc.) based on your hardware and transcription needs. Models with quantization (e.g., `-q5_0`) may offer faster performance with reduced memory usage.
 - **Additional Resources:** For additional configuration or troubleshooting, refer to the `whisper.cpp` [documentation](https://github.com/ggerganov/whisper.cpp).
 
 ---
 
-### Example Workflow
+## Example Workflow
 
 Here's an example of the entire transcription workflow using default options:
 
