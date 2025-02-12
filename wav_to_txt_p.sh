@@ -8,11 +8,11 @@ output_dir="${HOME}/git/whisper.cpp"
 parallel_jobs=7
 
 # Default model
-default_model="large-v3-turbo-q5_0"
+default_model="large-v2-q5_1"
 selected_model="$default_model"
 
 # Supported models
-supported_models=("large-v3-turbo-q5_0" "large-v3-turbo" "large-v2")
+supported_models=("large-v3-turbo-q8_0" "large-v2-q8_0" "large-v2-q5_1" "large-v2")
 
 # Parse arguments
 while getopts "m:p:i:o:" opt; do

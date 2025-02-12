@@ -16,7 +16,7 @@
 
 # Purpose
 
-The `whisper_cpp_macos_utils` repository provides shell scripts to simplify audio transcription workflows on macOS. These utilities integrate OpenAI's Whisper (via [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp)) with macOS tools like QuickTime Player and BlackHole-2ch to automate tasks such as retrieving QuickTime recordings, converting audio formats, and generating transcriptions.
+The `whisper_cpp_macos_utils` repository provides shell scripts to simplify audio transcription workflows on macOS. These utilities integrate OpenAI's Whisper (via [`whisper.cpp`](https://github.com/ggerganov/whisper.cpp)) with macOS tools like QuickTime Player and BlackHole-2ch to automate tasks such as retrieving QuickTime recordings, converting audio formats, and generating transcriptions. Recent updates include a revamped build process using CMake with Metal support and automatic model quantization when needed.
 
 This project is ideal for users who frequently record audio (e.g., meetings, lectures, or system audio) and need an efficient, streamlined way to process these recordings into text.
 
@@ -40,6 +40,10 @@ Before using the utilities, ensure the following are installed and configured:
    - **Xcode Command Line Tools**:
      ```bash
      xcode-select --install
+     ```
+   - **CMake** (required for the updated build process):
+     ```bash
+     brew install cmake
      ```
 
 2. **Configure Audio Routing:**
@@ -73,7 +77,7 @@ The typical workflow involves recording audio, processing the files, and generat
    - **Option 1:** Use the individual scripts:
      - [`quicktime_fix.sh`](#quicktime_fixsh): Retrieve and rename QuickTime autosave files.
      - [`m4a_to_wav.sh`](#m4a_to_wavsh): Convert `.m4a` files to `.wav`.
-     - [`wav_to_txt_p.sh`](#wav_to_txt_psh): Transcribe `.wav` files to `.txt`.
+     - [`wav_to_txt_p.sh`](#wav_to_txt_psh): Transcribe `.wav` files to `.txt` using enhanced model options and parallel processing.
    - **Option 2:** Use [`chain_workflow.sh`](#chain_workflowsh) to automate the full workflow with customizable options.
 
 ---
@@ -84,8 +88,11 @@ The typical workflow involves recording audio, processing the files, and generat
 
 ### `build_and_test_models.sh`
 
-- Builds the `whisper.cpp` binary with Metal support for macOS.
-- Downloads and tests Whisper models for transcription.
+- Builds the `whisper.cpp` binary with Metal support for macOS using CMake.
+- Downloads, quantizes (if necessary), and tests Whisper models for transcription.
+- Removes any existing build directory before configuring the build.
+- Moves the compiled binary (named `whisper_metal`) to the expected location.
+- Automatically checks for model availability and, if a model isn’t directly downloadable, performs manual quantization based on the extracted base model and quantization type.
 
 **Options:**
 - `-m`: Comma-separated list of Whisper models to download and test.
@@ -94,10 +101,12 @@ The typical workflow involves recording audio, processing the files, and generat
 **Example:**
 ```bash
 cd ~/git/whisper.cpp
-bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v2,large-v3-turbo,large-v3-turbo-q5_0 -t 8
+bash ../whisper_cpp_macos_utils/build_and_test_models.sh -m large-v2,large-v2-q5_1,large-v2-q8_0,large-v3-turbo-q8_0 -t 8
 ```
 
 **Note:** Requires macOS Ventura (version 13) or later for [Metal](https://developer.apple.com/metal/) support. For older macOS versions, manually build Whisper with CPU support.
+
+---
 
 ### `quicktime_fix.sh`
 
@@ -116,6 +125,8 @@ bash quicktime_fix.sh
 ```bash
 bash quicktime_fix.sh -s ~/custom_autosave_dir -d ~/custom_recordings_dir
 ```
+
+---
 
 ### `m4a_to_wav.sh`
 
@@ -137,16 +148,23 @@ bash m4a_to_wav.sh
 bash m4a_to_wav.sh -i ~/custom_input -o ~/custom_output -p ~/processed_files
 ```
 
+---
+
 ### `wav_to_txt_p.sh`
 
 - Transcribes `.wav` files into `.txt` using a specified Whisper model.
 - Supports parallel processing and configurable directories.
 
 **Options:**
-- `-m <model>`: Specify the Whisper model to use (default: `large-v3-turbo-q5_0`).
+- `-m <model>`: Specify the Whisper model to use (default: `large-v2-q5_1`).
 - `-p <parallel_jobs>`: Number of parallel jobs (default: `7`).
 - `-i <input_dir>`: Directory containing `.wav` files to process (default: `~/git/whisper.cpp/`).
 - `-o <output_dir>`: Directory to save `.txt` transcriptions (default: `~/git/whisper.cpp/`).
+
+**Supported Models (updated as needed for your usecase):**
+```bash
+("large-v3-turbo-q8_0" "large-v2-q8_0" "large-v2-q5_1" "large-v2")
+```
 
 **Example with Defaults:**
 ```bash
@@ -157,6 +175,8 @@ bash wav_to_txt_p.sh
 ```bash
 bash wav_to_txt_p.sh -m large-v2 -p 4 -i ~/custom_wav_dir -o ~/custom_txt_dir
 ```
+
+---
 
 ### `chain_workflow.sh`
 
@@ -171,7 +191,7 @@ bash wav_to_txt_p.sh -m large-v2 -p 4 -i ~/custom_wav_dir -o ~/custom_txt_dir
 - `--qt-dest <path>`: Destination directory for QuickTime recordings (default: `~/Documents/new_recordings/`).
 - `--m4a-output <path>`: Directory to save `.wav` files and transcriptions (default: `~/git/whisper.cpp/`).
 - `--processed-dir <path>`: Directory to move processed `.m4a` files (default: `~/Documents/old_recordings/`).
-- `--whisper-model <model>`: Whisper model to use (default: `large-v3-turbo-q5_0`).
+- `--whisper-model <model>`: Whisper model to use (default: `large-v2-q5_1`).
 - `--parallel-jobs <num>`: Number of parallel jobs for transcription (default: `7`).
 
 **Example with Defaults:**
@@ -188,7 +208,7 @@ bash chain_workflow.sh --qt-src ~/custom_autosave_dir --qt-dest ~/custom_new_rec
 
 # Notes
 
-- **Whisper Models:** Use an appropriate Whisper model (`large-v2`, `large-v3-turbo`, `large-v3-turbo-q5_0`, etc.) based on your hardware and transcription needs. Models with quantization (e.g., `-q5_0`) may offer faster performance with reduced memory usage.
+- **Whisper Models:** Use an appropriate Whisper model (e.g., `large-v2`, `large-v2-q5_1`, `large-v2-q8_0`, `large-v3-turbo-q8_0`) based on your hardware and transcription needs. Models with quantization (e.g., `-q5_1` and `-q8_0`) may offer faster performance with reduced memory usage.
 - **Additional Resources:** For additional configuration or troubleshooting, refer to the `whisper.cpp` [documentation](https://github.com/ggerganov/whisper.cpp).
 
 ---

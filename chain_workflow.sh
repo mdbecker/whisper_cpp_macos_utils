@@ -8,7 +8,7 @@ M4A_OUTPUT_DIR="$HOME/git/whisper.cpp"  # Output WAV files
 M4A_PROCESSED_DIR="$HOME/Documents/old_recordings"
 WAV_INPUT_DIR="$M4A_OUTPUT_DIR"  # Input for wav_to_txt_p.sh
 WAV_OUTPUT_DIR="$M4A_OUTPUT_DIR"  # Output TXT files
-WHISPER_MODEL="large-v3-turbo-q5_0"
+WHISPER_MODEL="large-v2-q5_1"
 PARALLEL_JOBS=7
 
 # Function to display usage information
